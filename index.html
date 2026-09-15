@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A private, browser-based editor for Star Trek: Infinite settings and save files.">
+  <title>Infinite Save Lab</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23040d17'/%3E%3Cpath d='M15 42 32 10l17 32-17 12z' fill='%2347d7ff'/%3E%3Cpath d='m32 20 9 19-9 7-9-7z' fill='%23040d17'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <button class="brand button-reset" id="homeButton" type="button" aria-label="Infinite Save Lab home">
+        <span class="brand-mark" aria-hidden="true">◇</span>
+        <span>Infinite Save Lab</span>
+      </button>
+      <div class="top-actions">
+        <span class="privacy-pill"><span class="status-dot"></span>Works on your device</span>
+        <button class="ghost small hidden" id="newFileButton" type="button">Open another file</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="homeView">
+        <div class="intro" aria-labelledby="page-title">
+          <p class="eyebrow">STAR TREK: INFINITE</p>
+          <h1 id="page-title">Tune the game.<br><span>Keep the timeline.</span></h1>
+          <p class="lede">Open a settings file or save game, make the changes you want, then download a safe edited copy.</p>
+        </div>
+
+        <section class="drop-card" id="dropZone" tabindex="0" aria-label="Choose a game file">
+          <div class="drop-icon" aria-hidden="true">＋</div>
+          <div>
+            <h2>Drop a file here</h2>
+            <p><strong>settings.txt</strong> or any <strong>.sav</strong> file</p>
+          </div>
+          <button class="primary" id="chooseFile" type="button">Choose file</button>
+          <input id="fileInput" type="file" accept=".txt,.sav,text/plain,application/zip" hidden>
+        </section>
+
+        <section class="preview-grid" aria-label="Available editing tools">
+          <article class="tool-card">
+            <span class="tool-number">01</span><h3>Display setup</h3><p>Resolution, fullscreen mode, refresh rate, interface size, VSync and graphics quality.</p>
+          </article>
+          <article class="tool-card accent">
+            <span class="tool-number">02</span><h3>Save resources</h3><p>Read your player empire and safely edit every resource stored in the save.</p>
+          </article>
+          <article class="tool-card">
+            <span class="tool-number">03</span><h3>Safe exports</h3><p>Your original stays untouched. Every change is downloaded as a separate edited copy.</p>
+          </article>
+        </section>
+      </section>
+
+      <section class="editor hidden" id="editorView" aria-live="polite">
+        <div class="file-heading">
+          <div><p class="eyebrow" id="fileKind">OPEN FILE</p><h1 class="editor-title" id="fileName">settings.txt</h1></div>
+          <div class="safe-note"><span aria-hidden="true">⌁</span><div><strong>Original stays safe</strong><small>The editor creates a separate copy.</small></div></div>
+        </div>
+        <div class="notice error hidden" id="errorBox" role="alert"></div>
+
+        <form id="settingsPanel" class="hidden" autocomplete="off">
+          <div class="summary-strip">
+            <div><span>Detected size</span><strong id="detectedResolution">—</strong></div>
+            <div><span>Display mode</span><strong id="detectedMode">—</strong></div>
+            <div><span>Format</span><strong>Paradox text</strong></div>
+          </div>
+          <div class="section-heading">
+            <div><p class="eyebrow">DISPLAY</p><h2>Screen fit</h2></div>
+            <button class="text-button" id="useScreenButton" type="button">Use this screen</button>
+          </div>
+          <div class="control-card control-grid three">
+            <label><span>Preset</span><select id="resolutionPreset"><option value="custom">Custom</option><option value="1536x864">1536 × 864</option><option value="1920x1080">1920 × 1080</option><option value="2560x1440">2560 × 1440</option><option value="3840x2160">3840 × 2160</option></select></label>
+            <label><span>Width</span><input id="widthInput" type="number" min="640" max="7680" step="1"></label>
+            <label><span>Height</span><input id="heightInput" type="number" min="480" max="4320" step="1"></label>
+            <label><span>Mode</span><select id="displayMode"><option value="borderless">Borderless fullscreen</option><option value="fullscreen">Exclusive fullscreen</option><option value="windowed">Windowed</option></select></label>
+            <label><span>Refresh rate</span><input id="refreshInput" type="number" min="30" max="360" step="1"></label>
+            <label class="switch-label"><span>Vertical sync</span><span class="switch"><input id="vsyncInput" type="checkbox"><i></i></span></label>
+          </div>
+          <div class="section-heading"><div><p class="eyebrow">INTERFACE</p><h2>Scale & safe area</h2></div></div>
+          <div class="control-card range-grid">
+            <label><span>Interface scale <output id="guiScaleOutput">1.00×</output></span><input id="guiScaleInput" type="range" min="0.70" max="2" step="0.05"></label>
+            <label><span>Safe area <output id="safeRatioOutput">100%</output></span><input id="safeRatioInput" type="range" min="0.75" max="1" step="0.01"></label>
+            <label><span>Gamma <output id="gammaOutput">50</output></span><input id="gammaInput" type="range" min="0" max="100" step="1"></label>
+          </div>
+          <div class="section-heading"><div><p class="eyebrow">GRAPHICS</p><h2>Quality</h2></div></div>
+          <div class="control-card control-grid three">
+            <label><span>Overall quality</span><select id="qualityInput"><option value="0">Low</option><option value="1">Medium</option><option value="2">High</option><option value="3">Very high</option></select></label>
+            <label><span>Anti-aliasing</span><select id="aaInput"><option value="0">Off</option><option value="2">2×</option><option value="4">4×</option><option value="8">8×</option></select></label>
+            <label><span>Anisotropic filtering</span><select id="anisotropyInput"><option value="0">Off</option><option value="2">2×</option><option value="4">4×</option><option value="8">8×</option><option value="16">16×</option></select></label>
+          </div>
+          <details class="advanced">
+            <summary>Advanced text editor</summary><p>For settings not shown above. The screen controls are applied when you download.</p>
+            <textarea id="rawSettings" spellcheck="false" aria-label="Raw settings text"></textarea>
+          </details>
+          <div class="action-bar"><button class="ghost" id="resetSettings" type="button">Reset changes</button><button class="primary wide" id="downloadSettings" type="submit">Download edited settings</button></div>
+        </form>
+
+        <form id="savePanel" class="hidden" autocomplete="off">
+          <div class="summary-strip save-summary">
+            <div><span>Empire</span><strong id="empireName">—</strong></div>
+            <div><span>Game date</span><strong id="gameDate">—</strong></div>
+            <div><span>Save version</span><strong id="saveVersion">—</strong></div>
+            <div><span>Player ID</span><strong id="playerId">—</strong></div>
+          </div>
+          <div class="section-heading resource-heading">
+            <div><p class="eyebrow">PLAYER STOCKPILE</p><h2>Resources</h2></div>
+            <div class="max-controls"><label><span>Max value</span><input id="maxValue" type="number" min="0" max="999999999" step="1" value="999999"></label><button class="primary compact" id="maxAllButton" type="button">Max all</button></div>
+          </div>
+          <div class="resource-grid" id="resourceGrid"></div>
+          <div class="notice"><strong>Load the edited copy, not your autosave.</strong><span>Very large values may be reduced by the game if a resource has a built-in storage cap.</span></div>
+          <div class="action-bar"><button class="ghost" id="resetResources" type="button">Reset changes</button><button class="primary wide" id="downloadSave" type="submit">Download edited save</button></div>
+        </form>
+      </section>
+    </main>
+
+    <footer><span>Local-first editor</span><span>No uploads · No account · No tracking</span></footer>
+  </div>
+  <div class="loading hidden" id="loading" role="status"><span class="spinner"></span><strong id="loadingText">Reading file…</strong></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="jszip.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
